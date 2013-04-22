@@ -70,11 +70,10 @@ module Xcode
       def initialize
         @before = lambda {|builder| return nil }
         @deployments = []
-        @build_number = lambda do
-          timestamp = Time.now.strftime("%Y%m%d%H%M%S")
-          ENV['BUILD_NUMBER']||"SNAPSHOT-#{Socket.gethostname}-#{timestamp}"
+        @build_number = lambda do |version|
+          version
         end
-        @after = lambda {|builder| return nil }
+        @after_deploy = lambda {|builder| return nil }
         # @profile = "Provisioning/#{name}.mobileprovision"
       end
 
@@ -104,15 +103,15 @@ module Xcode
       end
 
       #
-      # A block to run after each builder invocation
+      # A block to run after deploy invocation
       #
       # If supplied, the block will be yielded the builder object just after the invocation
-      # of clean/build/package
+      # of deploy
       #
       # @param the block to call
       #
-      def after &block
-        @after = block
+      def after_deploy &block
+        @after_deploy = block
       end
 
       # 
@@ -204,8 +203,6 @@ module Xcode
         @before.call builder
 
         @builder
-
-        @after.call builder
       end
 
       def project_name
@@ -253,6 +250,7 @@ module Xcode
               desc "Deploy #{project_name} to #{deployment[:type]}"
               task deployment[:type]  => [:package] do
                 builder.deploy deployment[:type], deployment[:args]
+                @after_deploy.call builder
               end
             end
 
