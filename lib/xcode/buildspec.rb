@@ -74,7 +74,7 @@ module Xcode
           timestamp = Time.now.strftime("%Y%m%d%H%M%S")
           ENV['BUILD_NUMBER']||"SNAPSHOT-#{Socket.gethostname}-#{timestamp}"
         end
-
+        @after = lambda {|builder| return nil }
         # @profile = "Provisioning/#{name}.mobileprovision"
       end
 
@@ -101,6 +101,18 @@ module Xcode
       #
       def before &block
         @before = block
+      end
+
+      #
+      # A block to run after each builder invocation
+      #
+      # If supplied, the block will be yielded the builder object just after the invocation
+      # of clean/build/package
+      #
+      # @param the block to call
+      #
+      def after &block
+        @after = block
       end
 
       # 
@@ -192,6 +204,8 @@ module Xcode
         @before.call builder
 
         @builder
+
+        @after.call builder
       end
 
       def project_name
