@@ -219,8 +219,7 @@ module Xcode
           desc "Build #{project_name}"
           task :build => [:clean, :deps] do
             builder.config.info_plist do |info|
-              info.version = @build_number.call
-              info.save
+              info.version = @build_number.call info.version
             end
             builder.build
           end
