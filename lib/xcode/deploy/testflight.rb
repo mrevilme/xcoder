@@ -18,6 +18,7 @@ module Xcode
         @notes = options[:notes]
         @lists = options[:lists]||[]
         @proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
+        @replace = options.has_key?(:replace) ? options[:replace] : false
       end
 
       def deploy
@@ -50,6 +51,7 @@ module Xcode
         cmd << "-F notes=\"#{@notes}\"" unless @notes.nil?
         cmd << "-F notify=#{@notify ? 'True' : 'False'}"
         cmd << "-F distribution_lists='#{@lists.join(',')}'" unless @lists.count==0
+        cmd << "-F replace=#{@replace ? 'True' : 'False'}"
 
         response = Xcode::Shell.execute(cmd)
 
