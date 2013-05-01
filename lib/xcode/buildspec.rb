@@ -246,18 +246,10 @@ module Xcode
           end
 
           namespace :deploy do
-            @deployments.reject("testflight") do |deployment|
+            @deployments.each do |deployment|
               desc "Deploy #{project_name} to #{deployment[:type]}"
               task deployment[:type]  => [:package] do
                 builder.deploy deployment[:type], deployment[:args]
-              end
-            end
-
-            if deployment.include? "testflight"
-              desc "Deploy #{project_name} to #{deployment[:type]}"
-              task deployment[:type]  => [:package] do
-                builder.deploy deployment[:type], deployment[:args]
-                @after_deploy.call builder
               end
             end
             
