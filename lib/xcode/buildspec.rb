@@ -227,11 +227,15 @@ module Xcode
             builder.dependencies
           end
 
-          desc "Build #{project_name}"
-          task :build => [:clean, :deps] do
+          desc "Prepare to build #{project_name}"
+          task :prepare do 
             builder.config.info_plist do |info|
               info.version = @build_number.call info.version
             end
+          end
+
+          desc "Build #{project_name}"
+          task :build => [:clean, :deps, :prepare] do
             builder.build
           end
 
@@ -258,8 +262,12 @@ module Xcode
               puts "Deployed to all"
             end
           end
+
+          desc "Perform post build actions of #{project_name}"
+          task :perform do
+            @after_deploy.call builder
+          end
         end
-      # end
     end
 
   end
