@@ -15,10 +15,29 @@ module Xcode
         @api_token = options[:api_token]||@@defaults[:api_token]
         @team_token = options[:team_token]||@@defaults[:team_token]
         @notify = options.has_key?(:notify) ? options[:notify] : true
-        @notes = options[:notes]
+        @notes = release_notes(options)
         @lists = options[:lists]||[]
         @proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
         @replace = options.has_key?(:replace) ? options[:replace] : false
+      end
+
+      def release_notes(options)
+        notes = options[:notes]
+        notes || get_notes_using_editor
+      end
+
+      def get_notes_using_editor
+        return unless (editor = ENV["EDITOR"])
+
+        dir = Dir.mktmpdir
+        begin
+          filepath = "#{dir}/release_notes"
+          system("#{editor} #{filepath}")
+          file_notes = File.read(filepath)
+        ensure
+          FileUtils.rm_rf(dir)
+        end
+        file_notes
       end
 
       def deploy
