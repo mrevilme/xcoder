@@ -94,6 +94,8 @@ module Xcode
       def prepare_test_command sdk=@sdk
         cmd = prepare_xcodebuild sdk
         cmd.env["TEST_AFTER_BUILD"]="YES"
+        cmd.env["RUN_CLI_SIM"]="YES"
+        cmd.env["ONLY_ACTIVE_ARCH"]="NO"
         cmd
       end
 
@@ -164,7 +166,6 @@ module Xcode
 
         cmd.attach Xcode::Test::Parsers::OCUnitParser.new(report)
         cmd.show_output = options[:show_output] # override it if user wants output
-
         begin
           cmd.execute
         rescue Xcode::Shell::ExecutionError => e

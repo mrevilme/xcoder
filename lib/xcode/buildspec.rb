@@ -205,6 +205,32 @@ module Xcode
         @builder
       end
 
+      #
+      # Internally used to lazily instantiate the test builder given the properties that
+      # have been set.
+      #
+      # @return the appropriate builder
+      #
+      def test_builder
+        return @test_builder unless @test_builder.nil?
+
+        raise "project/workspace must be defined" if @filename.nil?
+
+        begin 
+          project = Xcode.project @filename
+          @test_builder = project.target(@args[:target]).config(@args[:config]).builder
+        rescue
+          workspace = Xcode.workspace @filename
+          @test_builder = workspace.scheme(@args[:test_scheme]).builder
+        rescue
+          raise "You must provide a project or workspace"          
+        end          
+
+        raise "Could not create a builder using #{@args}" if @test_builder.nil?
+
+        @test_builder
+      end
+
       def project_name
         builder.product_name
       end
@@ -241,7 +267,7 @@ module Xcode
 
           desc "Test #{project_name}" 
           task :test => [:build] do 
-            builder.test
+            test_builder.test
           end
 
           desc "Package (.ipa & .dSYM.zip) #{project_name}"
