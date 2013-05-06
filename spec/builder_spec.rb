@@ -96,6 +96,8 @@ describe Xcode::Builder do
         cmd.env["OBJROOT"]="\"#{File.dirname(configuration.target.project.path)}/Build/\""
         cmd.env["SYMROOT"]="\"#{File.dirname(configuration.target.project.path)}/Build/Products/\""
         cmd.env["TEST_AFTER_BUILD"]="YES"
+        cmd.env["RUN_CLI_SIM"]="YES"
+        cmd.env["ONLY_ACTIVE_ARCH"]="NO"
         cmd
       end
 
@@ -108,6 +110,8 @@ describe Xcode::Builder do
         cmd.env["OBJROOT"]="\"#{File.dirname(configuration.target.project.path)}/Build/\""
         cmd.env["SYMROOT"]="\"#{File.dirname(configuration.target.project.path)}/Build/Products/\""
         cmd.env["TEST_AFTER_BUILD"]="YES"
+        cmd.env["RUN_CLI_SIM"]="YES"
+        cmd.env["ONLY_ACTIVE_ARCH"]="NO"
         cmd
       end
 

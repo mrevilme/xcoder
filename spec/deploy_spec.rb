@@ -38,7 +38,7 @@ describe Xcode::Deploy do
   describe Xcode::Deploy::Testflight do
 
     let(:testflight) do 
-      Xcode::Deploy::Testflight.new(builder, {:api_token => 'api token', :team_token => 'team token' }) 
+      Xcode::Deploy::Testflight.new(builder, {:api_token => 'api token', :team_token => 'team token', :notes => '' }) 
     end
     
     it "should be configured with api and team token" do
