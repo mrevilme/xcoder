@@ -267,7 +267,7 @@ module Xcode
 
           desc "Test #{project_name}" 
           task :test => [:build] do 
-            builder.test
+            test_builder.test
           end
 
           desc "Package (.ipa & .dSYM.zip) #{project_name}"
