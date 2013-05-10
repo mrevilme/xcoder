@@ -58,8 +58,8 @@ module Xcode
         #   report.add_formatter :junit, 'test-reports'
         # end
 
-        cmd.attach Xcode::Test::Parsers::OCUnitParser.new(report)
-        cmd.show_output = options[:show_output] # override it if user wants output
+        #cmd.attach Xcode::Test::Parsers::OCUnitParser.new(report)
+        #cmd.show_output = options[:show_output] # override it if user wants output
         begin
           cmd.execute
         rescue Xcode::Shell::ExecutionError => e
