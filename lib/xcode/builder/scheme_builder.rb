@@ -51,12 +51,12 @@ module Xcode
 
         cmd = prepare_test_command options[:sdk]||@sdk
 
-        if block_given?
-          yield(report)
-        else
-          report.add_formatter :stdout, { :color_output => true }
-          report.add_formatter :junit, 'test-reports'
-        end
+        # if block_given?
+        #   yield(report)
+        # else
+        #   report.add_formatter :stdout, { :color_output => true }
+        #   report.add_formatter :junit, 'test-reports'
+        # end
 
         cmd.attach Xcode::Test::Parsers::OCUnitParser.new(report)
         cmd.show_output = options[:show_output] # override it if user wants output
@@ -67,7 +67,7 @@ module Xcode
           raise e if report.suites.count==0
         end
 
-        report
+        # report
       end
 
 
