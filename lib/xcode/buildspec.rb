@@ -70,11 +70,10 @@ module Xcode
       def initialize
         @before = lambda {|builder| return nil }
         @deployments = []
-        @build_number = lambda do
-          timestamp = Time.now.strftime("%Y%m%d%H%M%S")
-          ENV['BUILD_NUMBER']||"SNAPSHOT-#{Socket.gethostname}-#{timestamp}"
+        @build_number = lambda do |version|
+          version
         end
-
+        @after_deploy = lambda {|builder| return nil }
         # @profile = "Provisioning/#{name}.mobileprovision"
       end
 
@@ -101,6 +100,18 @@ module Xcode
       #
       def before &block
         @before = block
+      end
+
+      #
+      # A block to run after deploy invocation
+      #
+      # If supplied, the block will be yielded the builder object just after the invocation
+      # of deploy
+      #
+      # @param the block to call
+      #
+      def after_deploy &block
+        @after_deploy = block
       end
 
       # 
@@ -194,6 +205,32 @@ module Xcode
         @builder
       end
 
+      #
+      # Internally used to lazily instantiate the test builder given the properties that
+      # have been set.
+      #
+      # @return the appropriate builder
+      #
+      def test_builder
+        return @test_builder unless @test_builder.nil?
+
+        raise "project/workspace must be defined" if @filename.nil?
+
+        begin 
+          project = Xcode.project @filename
+          @test_builder = project.target(@args[:target]).config(@args[:config]).builder
+        rescue
+          workspace = Xcode.workspace @filename
+          @test_builder = workspace.scheme(@args[:test_scheme]).builder
+        rescue
+          raise "You must provide a project or workspace"          
+        end          
+
+        raise "Could not create a builder using #{@args}" if @test_builder.nil?
+
+        @test_builder
+      end
+
       def project_name
         builder.product_name
       end
@@ -216,18 +253,21 @@ module Xcode
             builder.dependencies
           end
 
-          desc "Build #{project_name}"
-          task :build => [:clean, :deps] do
+          desc "Prepare to build #{project_name}"
+          task :prepare do 
             builder.config.info_plist do |info|
-              info.version = @build_number.call
-              info.save
+              info.version = @build_number.call info.version
             end
+          end
+
+          desc "Build #{project_name}"
+          task :build => [:clean, :deps, :prepare] do
             builder.build
           end
 
           desc "Test #{project_name}" 
           task :test => [:build] do 
-            builder.test
+            test_builder.test
           end
 
           desc "Package (.ipa & .dSYM.zip) #{project_name}"
@@ -242,14 +282,18 @@ module Xcode
                 builder.deploy deployment[:type], deployment[:args]
               end
             end
-
+            
             desc "Deploy #{project_name} to all"
             task :all  => [:package]+(@deployments.map{|k,v| k[:type]}) do
               puts "Deployed to all"
             end
           end
+
+          desc "Perform post build actions of #{project_name}"
+          task :perform do
+            @after_deploy.call builder
+          end
         end
-      # end
     end
 
   end

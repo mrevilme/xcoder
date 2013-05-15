@@ -23,3 +23,8 @@ group :test do
   gem 'guard-rspec'
   gem 'ruby-debug19'
 end
+
+group :development do
+  gem 'guard'
+  gem 'terminal-notifier-guard'
+end

@@ -18,7 +18,7 @@ describe Xcode::Scheme do
     end
     
     it "should return an array of schemes" do
-      project.schemes.size.should == 6
+      project.schemes.size.should == 1
     end
   
     it "should complain that no such scheme exists" do
@@ -36,7 +36,7 @@ describe Xcode::Scheme do
     end
   
     it "should return an array of schemes" do
-      workspace.schemes.size.should == 7
+      workspace.schemes.size.should == 2
     end
   
     it "should parse workspace schemes" do 
