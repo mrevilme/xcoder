@@ -6,6 +6,7 @@ gem 'rake'
 gem 'builder'
 gem 'multi_json'
 gem 'plist'
+gem 'CFPropertyList'
 gem 'rest-client'
 
 # Documentation
