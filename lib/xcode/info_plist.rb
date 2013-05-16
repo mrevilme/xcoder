@@ -1,5 +1,7 @@
 require 'plist'
 require 'pp'
+require 'cfpropertylist'
+
 
 module Xcode
   
@@ -10,48 +12,55 @@ module Xcode
     def initialize(config, plist_location)
       @config = config
       
-      @plist_location = File.expand_path("#{File.dirname(@config.target.project.path)}/#{plist_location}")
-      unless File.exists?(@plist_location)
-        puts 'Plist not found ' + @plist_location
+      @data_location = File.expand_path("#{File.dirname(@config.target.project.path)}/#{plist_location}")
+      unless File.exists?(@data_location)
+        puts 'Plist not found ' + @data_location
         exit 1
       end
-      @plist = Plist::parse_xml(@plist_location)
+      @plist = CFPropertyList::List.new(:file => @data_location)
+      @data = CFPropertyList.native_types(@plist.value)
+
+
+       #Plist::parse_xml(@data_location)
     end
 
     def marketing_version
-      @plist['CFBundleShortVersionString']
+      @data['CFBundleShortVersionString']
     end
 
     def marketing_version=(version)
-      @plist['CFBundleShortVersionString'] = version
+      @data['CFBundleShortVersionString'] = version
     end
 
     def version
-      @plist['CFBundleVersion']
+      @data['CFBundleVersion']
     end
 
     def version=(version)
-      @plist['CFBundleVersion'] = version.to_s
+      @data['CFBundleVersion'] = version.to_s
     end
 
     def identifier
-      @plist['CFBundleIdentifier']
+      @data['CFBundleIdentifier']
     end
 
     def identifier=(identifier)
-      @plist['CFBundleIdentifier'] = identifier
+      @data['CFBundleIdentifier'] = identifier
     end
 
     def display_name
-      @plist['CFBundleDisplayName']
+      @data['CFBundleDisplayName']
     end
 
     def display_name=(name)
-      @plist['CFBundleDisplayName'] = name
+      @data['CFBundleDisplayName'] = name
     end
 
     def save
-      File.open(@plist_location, 'w') {|f| f << @plist.to_plist}
+      plist = CFPropertyList::List.new 
+      plist.value = CFPropertyList.guess(@data)
+      plist.save(@data_location, CFPropertyList::List::FORMAT_XML)
+      # File.open(@data_location, 'w') {|f| f << @data.to_plist}
     end
   end
 end
