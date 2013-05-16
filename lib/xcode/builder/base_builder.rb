@@ -9,7 +9,7 @@ module Xcode
     class BaseBuilder
       include Xcode::TerminalOutput
 
-      attr_accessor :profile, :identity, :build_path, :keychain, :sdk, :objroot, :symroot
+      attr_accessor :profile, :identity, :build_path, :keychain, :sdk, :objroot, :symroot, :pipe
       attr_reader   :config, :target
 
       def initialize(target, config)
@@ -51,9 +51,13 @@ module Xcode
       end
 
       def xcodebuild_parser
-        filename = File.join(@build_path, "xcodebuild-output.txt")
-        parser = Xcode::Builder::XcodebuildParser.new filename
-        parser
+        if @pipe
+          @pipe
+        else
+          filename = File.join(@build_path, "xcodebuild-output.txt")
+          parser = Xcode::Builder::XcodebuildParser.new filename
+          parser
+        end
       end
 
       def prepare_xcodebuild sdk=@sdk #:yield: Xcode::Shell::Command

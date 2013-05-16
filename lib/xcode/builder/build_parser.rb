@@ -39,7 +39,7 @@ module Xcode
       end
 
       def close
-        print_task 'xcode', "Output written to #{@file}", :info
+        print_task 'xcode', "Output written to #{@file.path}", :info
         @file.close
       end
 
